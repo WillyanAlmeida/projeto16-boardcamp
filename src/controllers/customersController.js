@@ -3,7 +3,7 @@ import { db } from "../database/databaseconnections.js";
 
 export async function getcustomers(req, res) {
     try {
-        const customerslist = await db.query(`SELECT * FROM customers`);
+        const customerslist = await db.query(`SELECT id, name, phone, cpf, TO_CHAR(birthday, 'YYYY-MM-DD') AS birthday FROM customers ` );
         res.send(customerslist.rows);
     } catch (err) {
         res.status(500).send(err.message);
