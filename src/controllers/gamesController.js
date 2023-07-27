@@ -2,7 +2,6 @@
 import { db } from "../database/databaseconnections.js";
 
 
-
 export async function getgames(req, res) {
     try {
         const games = await db.query(`SELECT * FROM games`);
@@ -14,11 +13,6 @@ export async function getgames(req, res) {
 
 export async function postgames(req, res) {
     const { name, image, stockTotal, pricePerDay } = req.body
-    
-    console.log(name)
-    console.log(image)
-    console.log(stockTotal)
-    console.log(pricePerDay)
 
     try {
         const games = await db.query(`SELECT * FROM games WHERE name=$1`,[name]);
