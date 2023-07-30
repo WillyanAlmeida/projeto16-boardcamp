@@ -14,7 +14,28 @@ import { db } from "../database/databaseconnections.js";
          JOIN customers ON rentals."customerId" = customers."id" 
          JOIN games ON rentals."gameId" = games."id"`);
 
-         res.send(rentalslist.rows);
+
+
+         const rentals = rentalslist.rows.map((rental) => {  return {  
+            id: rental.id,
+            customerId: rental.customerId,
+            gameId: rental.gameId,
+            rentDate: rental.rentDate,
+            daysRented: rental.daysRented,
+            returnDate: rental.returnDate,
+            originalPrice: rental.originalPrice,
+            delayFee: rental.delayFee,
+            customer: {
+              id: rental.customerId,
+              name: rental.customerName,
+            },
+            game: {
+              id: rental.gameId,
+              name: rental.gameName,
+            },
+          }});
+
+         res.send(rentals);
      } catch (err) {
          res.status(500).send(err.message);
      }
