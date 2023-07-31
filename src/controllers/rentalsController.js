@@ -88,8 +88,9 @@ export async function postrentalsreturn(req, res) {
         const game = await db.query(`SELECT "pricePerDay" FROM games WHERE id = $1`, [returnrental?.rows[0].gameId]);
       let fee = 0
         if ((Math.abs(new Date(returnDate) - new Date(returnrental?.rows[0].rentDate)) / (1000 * 60 * 60 * 24)) > returnrental?.rows[0].daysRented) {
-            fee = (Math.abs(new Date(returnDate) - new Date(returnrental?.rows[0].rentDate)) / (1000 * 60 * 60 * 24)) * game.rows[0].pricePerDay
+            fee = ((Math.abs(new Date(returnDate) - new Date(returnrental?.rows[0].rentDate)) / (1000 * 60 * 60 * 24))-returnrental?.rows[0].daysRented) * game.rows[0].pricePerDay
         }
+        console.log(fee)
         await db.query(`UPDATE rentals SET "returnDate" = $1, "delayFee" = $2 WHERE id = $3`, [dayjs().format('YYYY-MM-DD'),fee, id]);
         res.sendStatus(200);
     } catch (err) {
@@ -107,7 +108,7 @@ export async function delrentals(req, res) {
         if (del.rows.length === 0) return res.sendStatus(404)
         if (del.rows[0].returnDate === null) return res.sendStatus(400)
         console.log('deleted')
-        await db.query(`DELET FROM rentals WHERE id=$1`, [id]);
+        await db.query(`DELETE FROM rentals WHERE id=$1`, [id]);
         res.sendStatus(200);
     } catch (err) {
         res.status(500).send(err.message);
