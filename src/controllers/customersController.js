@@ -28,7 +28,6 @@ export async function postcustomers(req, res) {
         const customers = await db.query(`SELECT * FROM customers WHERE cpf=$1`, [cpf]);
 
         if (customers.rows.length > 0) return res.sendStatus(409)
-
         await db.query(`INSERT INTO customers ( name, phone, cpf, birthday) VALUES
         ($1, $2, $3, $4)`, [name, phone, cpf, birthday]);
         res.sendStatus(201);
@@ -40,10 +39,9 @@ export async function postcustomers(req, res) {
 export async function putcustomers(req, res) {
     const { name, phone, cpf, birthday } = req.body
     const { id } = req.params
-    console.log(cpf)
+
     try {
         const customers = await db.query(`SELECT * FROM customers WHERE id=$1`, [id]);
-
         if (customers.rows.length === 0) return res.sendStatus(404)
         const checkcpf = await db.query(`SELECT * FROM customers WHERE cpf=$1 AND id<>$2 `, [cpf, id]);
         if (checkcpf.rows.length > 0) return res.sendStatus(409)

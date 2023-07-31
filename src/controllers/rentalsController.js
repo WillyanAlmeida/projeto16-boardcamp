@@ -14,8 +14,6 @@ export async function getrentals(req, res) {
          JOIN customers ON rentals."customerId" = customers."id" 
          JOIN games ON rentals."gameId" = games."id"`);
 
-
-
         const rentals = rentalslist.rows.map((rental) => {
             return {
                 id: rental.id,
@@ -59,7 +57,6 @@ export async function postrentalsinit(req, res) {
 
         const countstock = await db.query(`SELECT COUNT(*) AS openrentals FROM rentals WHERE "gameId" = $1 AND "returnDate" IS NULL;`, [gameId]);
 
-        console.log(checkgame.rows[0].stockTotal - countstock.rows[0].openrentals)
         if ((checkgame.rows[0].stockTotal - countstock.rows[0].openrentals) === 0) return res.sendStatus(400)
 
         const originalPrice = daysRented * checkgame.rows[0].pricePerDay;
@@ -79,19 +76,18 @@ export async function postrentalsinit(req, res) {
 export async function postrentalsreturn(req, res) {
     const { id } = req.params
 
-
     try {
         const returnrental = await db.query(`SELECT *, TO_CHAR(rentals."returnDate", 'YYYY-MM-DD') AS "returnDate", TO_CHAR(rentals."rentDate", 'YYYY-MM-DD') AS "rentDate" FROM rentals WHERE id=$1`, [id]);
         if (returnrental?.rows.length === 0) return res.sendStatus(404)
         if (returnrental?.rows[0].returnDate != null) return res.sendStatus(400)
         const returnDate = dayjs().format('YYYY-MM-DD')
         const game = await db.query(`SELECT "pricePerDay" FROM games WHERE id = $1`, [returnrental?.rows[0].gameId]);
-      let fee = 0
+        let fee = 0
         if ((Math.abs(new Date(returnDate) - new Date(returnrental?.rows[0].rentDate)) / (1000 * 60 * 60 * 24)) > returnrental?.rows[0].daysRented) {
-            fee = ((Math.abs(new Date(returnDate) - new Date(returnrental?.rows[0].rentDate)) / (1000 * 60 * 60 * 24))-returnrental?.rows[0].daysRented) * game.rows[0].pricePerDay
+            fee = ((Math.abs(new Date(returnDate) - new Date(returnrental?.rows[0].rentDate)) / (1000 * 60 * 60 * 24)) - returnrental?.rows[0].daysRented) * game.rows[0].pricePerDay
         }
-        console.log(fee)
-        await db.query(`UPDATE rentals SET "returnDate" = $1, "delayFee" = $2 WHERE id = $3`, [dayjs().format('YYYY-MM-DD'),fee, id]);
+
+        await db.query(`UPDATE rentals SET "returnDate" = $1, "delayFee" = $2 WHERE id = $3`, [dayjs().format('YYYY-MM-DD'), fee, id]);
         res.sendStatus(200);
     } catch (err) {
         res.status(500).send(err.message);
@@ -107,7 +103,7 @@ export async function delrentals(req, res) {
 
         if (del.rows.length === 0) return res.sendStatus(404)
         if (del.rows[0].returnDate === null) return res.sendStatus(400)
-        console.log('deleted')
+
         await db.query(`DELETE FROM rentals WHERE id=$1`, [id]);
         res.sendStatus(200);
     } catch (err) {
