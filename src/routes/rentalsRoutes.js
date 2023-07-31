@@ -9,7 +9,7 @@ const rentalsRouter = Router()
 
 rentalsRouter.get("/rentals", getrentals);
 rentalsRouter.post("/rentals", validateSchema(schemarentals), postrentalsinit);
-//rentalsRouter.post("/rentals/:id/return", validateSchema(schemascustomers), postrentalsreturn);
+rentalsRouter.post("/rentals/:id/return", postrentalsreturn);
 rentalsRouter.delete("/rentals/:id", delrentals);
 
 
